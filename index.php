@@ -1,41 +1,20 @@
 <?php
 
-if (!empty($_GET["name"])) {
+$ch = curl_init();
 
-    $response = file_get_contents("https://api.agify.io?name={$_GET['name']}");
+// curl_setopt($ch, CURLOPT_URL, "https://randomuser.me/api");
+// curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+curl_setopt_array($ch, [
+    CURLOPT_URL => "https://api.openweathermap.org/data/2.5/weather?q=Poltava&appid=a1eb3d0585788328d66af5ddb090c53e",
+    CURLOPT_RETURNTRANSFER => true
+]);
 
-    $data = json_decode($response, true);
+$response = curl_exec($ch);
 
-    $age = $data["age"];
-}
+$status_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
 
+curl_close($ch);
 
+echo $status_code, "\n";
 
-
-?>
-
-<!DOCTYPE html>
-<html>
-
-<head>
-    <title>Example</title>
-</head>
-
-<body>
-
-    <?php if (isset($age)) : ?>
-
-        Age: <?= $age ?>
-
-    <?php endif; ?>
-
-    <form>
-        <label for="name">Name</label>
-        <input name="name" id="name">
-
-        <button>Guess age</button>
-    </form>
-
-</body>
-
-</html>
+echo $response, "\n";
