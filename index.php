@@ -1,32 +1,18 @@
 <?php
 
-$ch = curl_init();
+require __DIR__ . "/vendor/autoload.php";
 
-$headers = [
-    "Authorization: token TOKEN-HERE",
-    // "User-Agent: SukachEugene"
-];
+$client = new GuzzleHttp\Client;
 
-$payload = json_encode([
-    "name" => "Created from API",
-    "description" => "an example API-created repo"
+$response = $client->request("GET", "https://api.github.com/user/repos", [
+    "headers" => [
+        "Authorization" => 'token TOKEN_HERE',
+        "User-Agent" => "SukachEugene"
+    ]
 ]);
 
-curl_setopt_array($ch, [
-    CURLOPT_URL => "https://api.github.com/user/repos",
-    CURLOPT_RETURNTRANSFER => true,
-    CURLOPT_HTTPHEADER => $headers,
-    CURLOPT_USERAGENT => "SukachEugene",
-    CURLOPT_CUSTOMREQUEST => "POST",
-    CURLOPT_POSTFIELDS => $payload
-]);
+echo $response->getStatusCode(), "\n";
 
-$response = curl_exec($ch);
+echo $response->getHeader("content-type")[0], "\n";
 
-$status_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-
-curl_close($ch);
-
-echo $status_code, "\n";
-
-echo $response, "\n";
+echo substr($response->getBody(), 0 ,200), "...\n";
