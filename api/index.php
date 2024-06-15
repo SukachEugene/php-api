@@ -2,13 +2,7 @@
 
 declare(strict_types=1);
 
-require dirname(__DIR__) . "/vendor/autoload.php";
-
-set_error_handler("ErrorHandler::handleError");
-set_exception_handler("ErrorHandler::handleException");
-
-$dotenv = Dotenv\Dotenv::createImmutable(dirname(__DIR__));
-$dotenv->load();
+require __DIR__ . "/bootstrap.php";
 
 $path = parse_url($_SERVER["REQUEST_URI"], PHP_URL_PATH);
 
@@ -24,12 +18,22 @@ if ($resource != "tasks") {
     exit;
 }
 
-header("Content-type: application/json; charset=UTF-8");
+
 
 $database = new Database($_ENV["DB_HOST"], $_ENV["DB_NAME"], $_ENV["DB_USER"], $_ENV["DB_PASSWORD"]);
 
+$user_gateway = new UserGateway($database);
+
+$auth = new Auth($user_gateway);
+
+if ($auth->authenticateAPIKey() === false) {
+    exit;
+}
+
+$user_id = $auth->getUserID();
+
 $task_gateway = new TaskGateway($database);
 
-$controller = new TaskController($task_gateway);
+$controller = new TaskController($task_gateway, $user_id);
 
 $controller->processRequest($_SERVER["REQUEST_METHOD"], $id);
