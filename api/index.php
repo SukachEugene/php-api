@@ -23,12 +23,13 @@ if ($resource != "tasks") {
 $database = new Database($_ENV["DB_HOST"], $_ENV["DB_NAME"], $_ENV["DB_USER"], $_ENV["DB_PASSWORD"]);
 
 $user_gateway = new UserGateway($database);
+$codec = new JWTCodec($_ENV["SECRET_KEY"]);
 
 // $headers = apache_request_headers();
 // echo $headers["Authorization"];
 
 
-$auth = new Auth($user_gateway);
+$auth = new Auth($user_gateway, $codec);
 
 if ($auth->authenticateAccessToken() === false) {
     exit;
